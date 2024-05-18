@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1E1E24;
+        }
+
+        .stopwatch-container {
+            text-align: center;
+        }
+
+        .stopwatch {
+            border: 2px solid #A1E44D;
+            border-radius: 10px;
+            padding: 20px;
+            width: 320px;
+            background-color: #77FF94;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #display {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: #111D4A;
+        }
+
+        .controls button {
+            margin: 20px; 
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #73b74c;
+            color: black;
+            transition: background-color 0.3s ease;
+        }
+
+        .controls button:hover {
+            background-color: #faf7f8a3;
+        }
+
+        #laps {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #laps li {
+            margin-bottom: 5px;
+            color: #A22522;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch-container">
+        <div class="stopwatch">
+            <div id="display">00:00:00</div>
+            <div class="controls">
+                <button id="start">Start</button>
+                <button id="pause">Pause</button>
+                <button id="reset">Reset</button>
+                <button id="lap">Lap</button>
+            </div>
+            <ul id="laps"></ul>
+        </div>
+    </div>
+    <script>
+        let timer;
+        let startTime;
+        let elapsedTime = 0;
+        let isRunning = false;
+        let lapCounter = 1;
+
+        const display = document.getElementById('display');
+        const startBtn = document.getElementById('start');
+        const pauseBtn = document.getElementById('pause');
+        const resetBtn = document.getElementById('reset');
+        const lapBtn = document.getElementById('lap');
+        const lapsList = document.getElementById('laps');
+
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            return `${formattedMinutes}:${formattedSeconds}`;
+        }
+
+        function updateDisplay() {
+            const currentTime = Date.now();
+            const timeToDisplay = elapsedTime + (currentTime - startTime);
+            display.textContent = formatTime(timeToDisplay);
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                startTime = Date.now();
+                timer = setInterval(updateDisplay, 1000);
+                isRunning = true;
+                startBtn.textContent = 'Running';
+                document.body.style.backgroundColor = '#A1E44D'; // Set running background color
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                elapsedTime += Date.now() - startTime;
+                isRunning = false;
+                startBtn.textContent = 'Resume';
+                document.body.style.backgroundColor = '#1E1E24'; // Set paused background color
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            startTime = null;
+            elapsedTime = 0;
+            display.textContent = '00:00:00';
+            startBtn.textContent = 'Start';
+            lapsList.innerHTML = '';
+            lapCounter = 1;
+            document.body.style.backgroundColor = '#1E1E24'; // Reset background color
+        }
+
+        function lapTime() {
+            if (isRunning || elapsedTime > 0) {
+                const lapTime = formatTime(elapsedTime + (isRunning ? Date.now() - startTime : 0));
+                const lapItem = document.createElement('li');
+                lapItem.textContent = `Lap ${lapCounter}: ${lapTime}`;
+                lapsList.prepend(lapItem);
+                lapCounter++;
+            }
+        }
+
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        lapBtn.addEventListener('click', lapTime);
+
+        // Set initial background color
+        document.body.style.backgroundColor = '#1E1E24';
+    </script>
+</body>
+</html>
